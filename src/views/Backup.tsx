@@ -723,14 +723,14 @@ export function Backup() {
     }
   };
 
-  const addExtraPath = (path: string) => {
-    const trimmed = path.trim();
-    if (trimmed) void saveExtraPaths([...extraPaths, trimmed], true);
+  const addExtraPaths = (paths: string[]) => {
+    const fresh = paths.map((p) => p.trim()).filter((p) => p && !extraPaths.includes(p));
+    if (fresh.length) void saveExtraPaths([...extraPaths, ...fresh], true);
   };
 
   const browseExtraPath = async (directory: boolean) => {
-    const selected = await dialogOpen({ multiple: false, directory });
-    if (typeof selected === "string") addExtraPath(selected);
+    const selected = await dialogOpen({ multiple: true, directory });
+    if (selected) addExtraPaths(Array.isArray(selected) ? selected : [selected]);
   };
 
   const handleDisconnect = async () => {
@@ -1280,7 +1280,7 @@ export function Backup() {
                   value={extraDraft}
                   onChange={(event) => setExtraDraft(event.target.value)}
                   onKeyDown={(event) => {
-                    if (event.key === "Enter") addExtraPath(extraDraft);
+                    if (event.key === "Enter") addExtraPaths([extraDraft]);
                   }}
                   placeholder={t("backup.scope.extra.placeholder")}
                   className="h-7 min-w-0 flex-1 rounded-lg border border-border-subtle bg-background px-2 font-mono text-[12px] text-secondary outline-none transition-colors focus:border-border"
@@ -1290,7 +1290,7 @@ export function Backup() {
                 />
                 <button
                   type="button"
-                  onClick={() => addExtraPath(extraDraft)}
+                  onClick={() => addExtraPaths([extraDraft])}
                   disabled={!extraDraft.trim()}
                   className="h-7 shrink-0 rounded-lg border border-border bg-surface-hover px-2 text-[12px] font-medium text-tertiary transition-colors hover:bg-surface-active disabled:opacity-50"
                 >
