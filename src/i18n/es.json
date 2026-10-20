@@ -192,6 +192,18 @@
         "skills": "Skills y sus archivos"
       },
       "oversizedExcluded": "\"{{name}}\" tiene {{size}} — supera el límite de 100 MB, se conserva en esta máquina y no se respalda.",
+      "extra": {
+        "title": "Archivos adicionales",
+        "desc": "Archivos y carpetas de este dispositivo que se respaldan junto con tus skills y se escriben de nuevo en la misma ruta aquí tras restaurar o sincronizar. La lista es propia de cada dispositivo.",
+        "placeholder": "~/.claude/CLAUDE.md",
+        "add": "Añadir",
+        "browseFile": "Archivo…",
+        "browseFolder": "Carpeta…",
+        "remove": "Quitar {{path}}",
+        "empty": "No hay archivos adicionales.",
+        "added": "Archivo adicional añadido",
+        "removed": "Archivo adicional quitado"
+      },
       "oversizedSkill": "\"{{name}}\" tiene {{size}} — ya respaldado; los skills grandes pueden ralentizar las copias.",
       "repoTooLarge": "La copia tiene {{size}} en total — más de 1 GB puede ralentizarse.",
       "sizeHint": "Las carpetas de skills muy grandes pueden ralentizar las copias. El límite predeterminado previsto es 100 MB por carpeta de skill; los skills más grandes se conservan localmente.",

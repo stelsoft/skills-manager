@@ -194,7 +194,19 @@
       "sizeHint": "超大的技能目錄會拖慢備份。規劃中的預設限制是單一技能目錄 100 MB，超限技能保留在本機。",
       "repoTooLarge": "備份總大小為 {{size}}——超過 1 GB 後備份可能變慢。",
       "oversizedSkill": "「{{name}}」大小為 {{size}}——已在備份中；超大技能可能拖慢備份。",
-      "oversizedExcluded": "「{{name}}」大小為 {{size}}——超過 100 MB 上限，僅保留在本機，不參與備份。"
+      "oversizedExcluded": "「{{name}}」大小為 {{size}}——超過 100 MB 上限，僅保留在本機，不參與備份。",
+      "extra": {
+        "title": "額外檔案",
+        "desc": "本裝置上的檔案和資料夾，會隨技能一起備份，並在還原或同步後寫回本機的相同路徑。清單依裝置分別儲存。",
+        "placeholder": "~/.claude/CLAUDE.md",
+        "add": "新增",
+        "browseFile": "檔案…",
+        "browseFolder": "資料夾…",
+        "remove": "移除 {{path}}",
+        "empty": "尚無額外檔案。",
+        "added": "已新增額外檔案",
+        "removed": "已移除額外檔案"
+      }
     },
     "disconnect": {
       "title": "斷開本機",

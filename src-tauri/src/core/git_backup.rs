@@ -286,6 +286,9 @@ pub(crate) fn init_repo_unlocked(skills_dir: &Path, device_name: &str) -> Result
     configure_device_identity(skills_dir, device_name)?;
 
     ensure_gitignore(skills_dir)?;
+    if let Err(e) = super::extra_files::mirror_in(skills_dir) {
+        log::warn!("backup: extra files mirror failed (continuing): {e:#}");
+    }
     // Cleanup, not a precondition: a failure here means the backup carries a few
     // stale `.pyc` entries, which is not a reason to refuse to back up at all.
     if let Err(e) = untrack_python_artifacts(skills_dir) {
@@ -442,6 +445,9 @@ pub fn commit_all(skills_dir: &Path, message: &str) -> Result<()> {
 pub(crate) fn commit_all_unlocked(skills_dir: &Path, message: &str) -> Result<()> {
     ensure_repo(skills_dir)?;
     ensure_gitignore(skills_dir)?;
+    if let Err(e) = super::extra_files::mirror_in(skills_dir) {
+        log::warn!("backup: extra files mirror failed (continuing): {e:#}");
+    }
     // Cleanup, not a precondition: a failure here means the backup carries a few
     // stale `.pyc` entries, which is not a reason to refuse to back up at all.
     if let Err(e) = untrack_python_artifacts(skills_dir) {
@@ -529,6 +535,9 @@ pub fn prune_hidden_refs_on_remote(skills_dir: &Path) -> Result<usize> {
 pub(crate) fn commit_resolution_unlocked(skills_dir: &Path, full_message: &str) -> Result<()> {
     ensure_repo(skills_dir)?;
     ensure_gitignore(skills_dir)?;
+    if let Err(e) = super::extra_files::mirror_in(skills_dir) {
+        log::warn!("backup: extra files mirror failed (continuing): {e:#}");
+    }
     // Cleanup, not a precondition: a failure here means the backup carries a few
     // stale `.pyc` entries, which is not a reason to refuse to back up at all.
     if let Err(e) = untrack_python_artifacts(skills_dir) {

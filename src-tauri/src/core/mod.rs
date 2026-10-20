@@ -6,6 +6,7 @@ pub mod cli_bridge;
 pub mod content_hash;
 pub mod crypto;
 pub mod error;
+pub mod extra_files;
 pub mod file_manager;
 pub mod file_watcher;
 pub mod git2_engine;
