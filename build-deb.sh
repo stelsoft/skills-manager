@@ -30,7 +30,9 @@ mkdir -p "$TARGET"
 docker run --rm -v "$PWD":/w -v "$TARGET":/w/src-tauri/target -w /w "$IMG" \
   npx tauri build --bundles deb --config '{"build":{"beforeBuildCommand":""},"bundle":{"createUpdaterArtifacts":false}}'
 
-DEB=$(ls -t "$TARGET"/release/bundle/deb/*.deb | head -1)
-echo "DEB: $DEB"
+mkdir -p releases
+DEB=releases/$(basename "$(ls -t "$TARGET"/release/bundle/deb/*.deb | head -1)")
+cp "$TARGET/release/bundle/deb/$(basename "$DEB")" "$DEB"
+echo "DEB: $PWD/$DEB"
 [ $INSTALL = 1 ] && sudo dpkg -i "$DEB"
 exit 0
