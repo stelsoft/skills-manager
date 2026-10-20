@@ -6,7 +6,15 @@ BRANCH=$(git branch --show-current)
 IMG=skills-manager-build
 TARGET=${TARGET:-$HOME/.cache/skills-manager-target}
 INSTALL=0 SYNC=1
-for a in "$@"; do case $a in --install) INSTALL=1;; --no-sync) SYNC=0;; *) echo "unknown arg $a"; exit 2;; esac; done
+usage() { cat <<U
+Usage: $0 [--install] [--no-sync]
+  --install   run sudo dpkg -i on the built deb
+  --no-sync   skip merging latest upstream tag into current branch + push
+  -h, --help  this
+Env: TARGET=<cargo target dir> (default $TARGET)
+U
+}
+for a in "$@"; do case $a in --install) INSTALL=1;; --no-sync) SYNC=0;; -h|--help) usage; exit 0;; *) echo "unknown arg $a"; usage; exit 2;; esac; done
 
 if [ $SYNC = 1 ]; then
   git diff --quiet && git diff --cached --quiet || { echo "working tree dirty, commit or stash first"; exit 1; }
