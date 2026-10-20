@@ -11,8 +11,10 @@ for a in "$@"; do case $a in --install) INSTALL=1;; --no-sync) SYNC=0;; *) echo 
 if [ $SYNC = 1 ]; then
   git diff --quiet && git diff --cached --quiet || { echo "working tree dirty, commit or stash first"; exit 1; }
   git checkout -q "$BRANCH"
-  git fetch -q upstream
-  git merge --no-edit upstream/main
+  git fetch -q upstream --tags
+  TAG=$(git tag --sort=-creatordate | head -1)
+  echo "merging $TAG"
+  git merge --no-edit "$TAG"
   git push -q origin "$BRANCH"
 fi
 
