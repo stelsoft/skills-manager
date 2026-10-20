@@ -188,7 +188,7 @@ pub fn get_status(skills_dir: &Path) -> Result<GitBackupStatus> {
     let branch = run_git(skills_dir, &["rev-parse", "--abbrev-ref", "HEAD"]).ok();
 
     let porcelain = run_git(skills_dir, &["status", "--porcelain"]).unwrap_or_default();
-    let has_changes = !porcelain.is_empty();
+    let has_changes = !porcelain.is_empty() || super::extra_files::local_differs(skills_dir);
     let changed_skill_count = count_changed_top_dirs(&porcelain);
 
     let (ahead, behind) = get_ahead_behind(skills_dir).unwrap_or((0, 0));

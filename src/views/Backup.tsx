@@ -717,6 +717,7 @@ export function Backup() {
     try {
       setExtraPaths(await api.backupSetExtraPaths(paths));
       if (added) setExtraDraft("");
+      void refreshGitStatus();
       toast.success(t(added ? "backup.scope.extra.added" : "backup.scope.extra.removed"));
     } catch (error) {
       toast.error(getErrorMessage(error, t("common.error")));
