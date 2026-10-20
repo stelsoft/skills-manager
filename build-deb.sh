@@ -5,16 +5,17 @@ cd "$(dirname "$0")"
 BRANCH=$(git branch --show-current)
 IMG=skills-manager-build
 TARGET=${TARGET:-$HOME/.cache/skills-manager-target}
-INSTALL=0 SYNC=1
+INSTALL=0 SYNC=1 PUSH=0
 usage() { cat <<U
-Usage: $0 [--install] [--no-sync]
+Usage: $0 [--install] [--no-sync] [--push]
   --install   run sudo dpkg -i on the built deb
-  --no-sync   skip merging latest upstream tag into current branch + push
+  --no-sync   skip merging latest upstream tag into current branch
+  --push      push current branch to origin after sync
   -h, --help  this
 Env: TARGET=<cargo target dir> (default $TARGET)
 U
 }
-for a in "$@"; do case $a in --install) INSTALL=1;; --no-sync) SYNC=0;; -h|--help) usage; exit 0;; *) echo "unknown arg $a"; usage; exit 2;; esac; done
+for a in "$@"; do case $a in --install) INSTALL=1;; --no-sync) SYNC=0;; --push) PUSH=1;; -h|--help) usage; exit 0;; *) echo "unknown arg $a"; usage; exit 2;; esac; done
 
 if [ $SYNC = 1 ]; then
   git diff --quiet && git diff --cached --quiet || { echo "working tree dirty, commit or stash first"; exit 1; }
@@ -22,7 +23,7 @@ if [ $SYNC = 1 ]; then
   TAG=$(git tag --sort=-creatordate | head -1)
   echo "merging $TAG"
   git merge --no-edit "$TAG"
-  git push -q -u origin "$BRANCH"
+  [ $PUSH = 1 ] && git push -q -u origin "$BRANCH"
 fi
 
 [ -d node_modules ] && [ package-lock.json -ot node_modules ] || npm ci
