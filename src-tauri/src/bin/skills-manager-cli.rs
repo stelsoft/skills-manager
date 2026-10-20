@@ -5,7 +5,8 @@ use std::sync::Arc;
 use anyhow::{Context, anyhow, bail};
 use app_lib::commands::{presets as preset_cmd, skills as cmd, tools as tool_cmd};
 use app_lib::core::{
-    app_state, audit_log::AuditDraft, central_repo, error::AppError, git_backup, git_fetcher,
+    app_state, audit_log::AuditDraft, central_repo, error::AppError, extra_files, git_backup,
+    git_fetcher,
     installer, merge, repo_lock::RepoLock, scenario_service, skill_metadata,
     skill_store::SkillStore, skillssh_api, sync_engine, sync_metadata, tool_adapters, tool_service,
     well_known,
@@ -391,6 +392,14 @@ enum GitCommand {
     /// Remove refs/skills-manager/* that a `git push --mirror`/--all style
     /// operation uploaded to the backup remote. Local sync refs are kept.
     PruneSyncRefs,
+    /// Extra files/dirs (e.g. ~/.claude/CLAUDE.md) backed up alongside the
+    /// library on this device. No args lists them; --add / --remove edit.
+    ExtraFiles {
+        #[arg(long)]
+        add: Vec<String>,
+        #[arg(long)]
+        remove: Vec<String>,
+    },
 }
 
 #[derive(Debug, Serialize)]
@@ -3105,6 +3114,17 @@ fn run_git(
         GitCommand::PruneSyncRefs => {
             let removed = git_backup::prune_hidden_refs_on_remote(&central_repo::skills_dir())?;
             print_json(&serde_json::json!({ "removed": removed }), json);
+        }
+        GitCommand::ExtraFiles { add, remove } => {
+            let mut paths = extra_files::list();
+            paths.retain(|p| !remove.contains(p));
+            paths.extend(add);
+            let saved = if remove.is_empty() && paths == extra_files::list() {
+                paths
+            } else {
+                extra_files::set(&paths, &central_repo::skills_dir())?
+            };
+            print_json(&saved, json);
         }
     }
     Ok(())

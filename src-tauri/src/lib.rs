@@ -1093,6 +1093,8 @@ pub fn run() {
             commands::git_backup::git_backup_restore_version,
             commands::git_backup::backup_device_name,
             commands::git_backup::backup_set_device_name,
+            commands::git_backup::backup_extra_paths,
+            commands::git_backup::backup_set_extra_paths,
             commands::git_backup::git_backup_pending_conflicts,
             commands::git_backup::git_backup_resolve_conflict,
             commands::git_backup::git_backup_sync,

@@ -18,6 +18,7 @@ use serde::Serialize;
 use tauri::{AppHandle, Emitter, Runtime};
 
 use super::central_repo;
+use super::extra_files;
 use super::git_backup;
 use super::merge;
 use super::repo_lock::RepoLock;
@@ -104,6 +105,13 @@ pub fn start<R: Runtime>(app: AppHandle<R>, store: Arc<SkillStore>) {
         DIRTY.store(true, Ordering::Release);
 
         loop {
+            // Edits to extra files happen outside the watched repo.
+            if !DIRTY.load(Ordering::Acquire)
+                && is_enabled(&store)
+                && extra_files::local_differs(&central_repo::skills_dir())
+            {
+                notify_central_change();
+            }
             let now_ms = chrono::Utc::now().timestamp_millis();
             if is_due(
                 DIRTY.load(Ordering::Acquire),
@@ -251,6 +259,9 @@ pub(crate) fn run_round_blocking(store: &SkillStore) -> Outcome {
         log::debug!("auto backup: exclusion scan failed (continuing): {e:#}");
     }
 
+    if let Err(e) = extra_files::mirror_in(&skills_dir) {
+        log::debug!("auto backup: extra files mirror failed (continuing): {e:#}");
+    }
     let mut committed = false;
     match git_backup::has_uncommitted_changes(&skills_dir) {
         Ok(true) => {
@@ -338,6 +349,9 @@ pub fn commit_on_exit(store: &SkillStore) {
     crate::commands::git_backup::apply_device_identity(store, &skills_dir);
     if let Err(e) = sync_metadata::write_all_from_db_unlocked(store) {
         log::warn!("auto backup on exit: metadata write failed: {e:#}");
+    }
+    if let Err(e) = extra_files::mirror_in(&skills_dir) {
+        log::warn!("auto backup on exit: extra files mirror failed: {e:#}");
     }
     match git_backup::has_uncommitted_changes(&skills_dir) {
         Ok(true) => {

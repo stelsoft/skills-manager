@@ -645,6 +645,13 @@ export const backupDeviceName = () => invoke<string>("backup_device_name");
 export const backupSetDeviceName = (name: string) =>
   invoke<string>("backup_set_device_name", { name });
 
+/** Extra files/folders this device mirrors into the backup (home shown as `~`). */
+export const backupExtraPaths = () => invoke<string[]>("backup_extra_paths");
+
+/** Replace this device's extra-path list. Returns the normalized saved list. */
+export const backupSetExtraPaths = (paths: string[]) =>
+  invoke<string[]>("backup_set_extra_paths", { paths });
+
 export const gitBackupRemoveRemote = () =>
   invoke<void>("git_backup_remove_remote");
 

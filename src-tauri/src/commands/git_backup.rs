@@ -1,5 +1,5 @@
 use crate::core::{
-    central_repo, error::AppError, git2_engine, git_backup, git_credentials, git_fetcher,
+    central_repo, error::AppError, extra_files, git2_engine, git_backup, git_credentials, git_fetcher,
     github_api, merge, skill_metadata, sync_metadata,
 };
 use anyhow::Context;
@@ -461,6 +461,9 @@ fn run_sync_blocking(
     {
         log::warn!("backup size: exclusion scan failed (continuing): {e:#}");
     }
+    if let Err(e) = extra_files::mirror_in(skills_dir) {
+        log::warn!("git sync: extra files mirror failed (continuing): {e:#}");
+    }
     let mut committed = false;
     if git_backup::has_uncommitted_changes(skills_dir)? {
         git_backup::commit_all_unlocked(skills_dir, message)?;
@@ -751,6 +754,23 @@ pub async fn backup_set_device_name(
             log::warn!("device name: failed to configure git identity: {e:#}");
         }
         Ok(sanitized)
+    })
+    .await?
+}
+
+/// Extra files/dirs backed up alongside the library (per device, display form).
+#[tauri::command]
+pub async fn backup_extra_paths() -> Result<Vec<String>, AppError> {
+    Ok(extra_files::list())
+}
+
+#[tauri::command]
+pub async fn backup_set_extra_paths(paths: Vec<String>) -> Result<Vec<String>, AppError> {
+    tokio::task::spawn_blocking(move || {
+        git_backup::with_repo_lock("set extra backup paths", || {
+            extra_files::set(&paths, &central_repo::skills_dir())
+        })
+        .map_err(AppError::io)
     })
     .await?
 }
@@ -1114,6 +1134,9 @@ mod tests {
 
 pub(crate) fn reconcile_skills_index_unlocked(store: &SkillStore) -> anyhow::Result<()> {
     sync_metadata::cleanup_temporary_files()?;
+    if let Err(e) = extra_files::mirror_out(&central_repo::skills_dir()) {
+        log::warn!("backup: extra files write-back failed (continuing): {e:#}");
+    }
     if sync_metadata::has_complete_skill_snapshot() {
         sync_metadata::reindex_from_metadata_unlocked(store)?;
         return Ok(());
