@@ -2,7 +2,7 @@
 # Sync fork branch with upstream, rebuild deb in docker. Usage: ./build-deb.sh [--install] [--no-sync]
 set -euo pipefail
 cd "$(dirname "$0")"
-BRANCH=extra-files-backup
+BRANCH=$(git branch --show-current)
 IMG=skills-manager-build
 TARGET=${TARGET:-$HOME/.cache/skills-manager-target}
 INSTALL=0 SYNC=1
@@ -10,12 +10,11 @@ for a in "$@"; do case $a in --install) INSTALL=1;; --no-sync) SYNC=0;; *) echo 
 
 if [ $SYNC = 1 ]; then
   git diff --quiet && git diff --cached --quiet || { echo "working tree dirty, commit or stash first"; exit 1; }
-  git checkout -q "$BRANCH"
   git fetch -q upstream --tags
   TAG=$(git tag --sort=-creatordate | head -1)
   echo "merging $TAG"
   git merge --no-edit "$TAG"
-  git push -q origin "$BRANCH"
+  git push -q -u origin "$BRANCH"
 fi
 
 [ -d node_modules ] && [ package-lock.json -ot node_modules ] || npm ci
