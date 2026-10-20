@@ -555,6 +555,7 @@ export interface GitBackupStatus {
   branch: string | null;
   has_changes: boolean;
   changed_skill_count: number;
+  changed_extra_count: number;
   ahead: number;
   behind: number;
   last_commit: string | null;

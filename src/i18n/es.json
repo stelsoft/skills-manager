@@ -222,6 +222,8 @@
       "pendingBothDesc": "Cambios locales: {{local}} · actualizaciones remotas: {{remote}}. Al sincronizar se combinan ambas por skill — ningún lado sobrescribe al otro.",
       "pendingDesc": "Cambios locales: {{local}} · actualizaciones remotas: {{remote}}.",
       "pendingSkills": "{{count}} skill(s) tienen cambios aún sin respaldar.",
+      "pendingExtra": "{{count}} archivo(s) adicional(es) tienen cambios aún sin respaldar.",
+      "pendingSkillsAndExtra": "{{count}} skill(s) y {{extra}} archivo(s) adicional(es) tienen cambios aún sin respaldar.",
       "remoteOnly": "Actualizaciones de tus otros dispositivos",
       "remoteOnlyDesc": "{{remote}} actualización(es) fueron enviadas por tus otros dispositivos. Al sincronizar se combinan en esta máquina — aquí no se sube ni se sobrescribe nada.",
       "synced": "Respaldado",

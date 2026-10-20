@@ -109,6 +109,8 @@
       "noSnapshot": "暂无快照",
       "failed": "备份失败",
       "pendingSkills": "有 {{count}} 个技能的更改尚未备份。",
+      "pendingExtra": "有 {{count}} 个额外文件的更改尚未备份。",
+      "pendingSkillsAndExtra": "有 {{count}} 个技能和 {{extra}} 个额外文件的更改尚未备份。",
       "remoteOnly": "其他设备有更新",
       "remoteOnlyDesc": "其他设备推送了 {{remote}} 项更新。同步会把它们合并到本机——本机不会上传或覆盖任何内容。",
       "pendingBothDesc": "本地更改：{{local}} · 远端更新：{{remote}}。同步会按技能合并双方的修改——任何一端都不会被覆盖。"

@@ -109,6 +109,8 @@
       "noSnapshot": "아직 스냅샷 없음",
       "failed": "백업 실패",
       "pendingSkills": "스킬 {{count}}개에 아직 백업하지 않은 변경이 있습니다.",
+      "pendingExtra": "추가 파일 {{count}}개에 아직 백업하지 않은 변경이 있습니다.",
+      "pendingSkillsAndExtra": "스킬 {{count}}개와 추가 파일 {{extra}}개에 아직 백업하지 않은 변경이 있습니다.",
       "remoteOnly": "다른 기기에서 올린 업데이트",
       "remoteOnlyDesc": "다른 기기에서 업데이트 {{remote}}건을 올렸습니다. 동기화하면 다른 기기의 업데이트만 이 기기에 합칩니다. 이 기기의 내용은 업로드하거나 덮어쓰지 않습니다.",
       "pendingBothDesc": "로컬 변경 {{local}}건, 원격 업데이트 {{remote}}건. 동기화하면 스킬 단위로 양쪽을 합치며 어느 쪽도 상대를 덮어쓰지 않습니다."

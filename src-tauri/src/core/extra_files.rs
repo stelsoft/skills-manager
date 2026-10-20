@@ -127,6 +127,31 @@ pub fn mirror_out(skills_dir: &Path) -> Result<()> {
     Ok(())
 }
 
+/// Configured paths with changes not yet committed: local differs from the
+/// mirror, or the mirror itself is dirty in `porcelain` (`git status --porcelain`).
+/// Dirty mirror lines no configured path owns (a removed path) count once.
+pub fn changed_count(skills_dir: &Path, porcelain: &str) -> u32 {
+    let dirty: Vec<&str> = porcelain
+        .lines()
+        .filter_map(|l| l.get(3..))
+        .map(|p| p.trim().trim_matches('"'))
+        .filter(|p| p.starts_with(EXTRA_DIR))
+        .collect();
+    let mut owned = 0usize;
+    let mut n = 0u32;
+    for shown in list() {
+        let src = expand_home(&shown);
+        let Some(dst) = mirror_path(skills_dir, &shown) else { continue };
+        let rel = dst.strip_prefix(skills_dir).unwrap_or(&dst).to_string_lossy().into_owned();
+        let mine = dirty.iter().filter(|p| p.starts_with(&rel)).count();
+        owned += mine;
+        if mine > 0 || (src.exists() && tree_differs(&src, &dst)) {
+            n += 1;
+        }
+    }
+    n + u32::from(dirty.len() > owned)
+}
+
 /// True when any configured path differs from its mirror (drives auto backup).
 pub fn local_differs(skills_dir: &Path) -> bool {
     list().iter().any(|shown| {

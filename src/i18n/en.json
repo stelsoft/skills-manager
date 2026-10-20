@@ -109,6 +109,8 @@
       "noSnapshot": "no snapshot yet",
       "failed": "Backup failed",
       "pendingSkills": "{{count}} skill(s) have changes not yet backed up.",
+      "pendingExtra": "{{count}} extra file(s) have changes not yet backed up.",
+      "pendingSkillsAndExtra": "{{count}} skill(s) and {{extra}} extra file(s) have changes not yet backed up.",
       "remoteOnly": "Updates from your other devices",
       "remoteOnlyDesc": "{{remote}} update(s) were pushed by your other devices. Syncing merges them into this machine — nothing here is uploaded or overwritten.",
       "pendingBothDesc": "Local changes: {{local}} · remote updates: {{remote}}. Syncing merges both per skill — neither side overwrites the other."

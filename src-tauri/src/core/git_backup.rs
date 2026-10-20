@@ -22,6 +22,8 @@ pub struct GitBackupStatus {
     /// Drives the "N skills have unbacked changes" status copy; 0 when only
     /// metadata or root files changed.
     pub changed_skill_count: u32,
+    /// Number of extra (non-skill) backup paths with uncommitted changes.
+    pub changed_extra_count: u32,
     /// Number of commits ahead of remote
     pub ahead: u32,
     /// Number of commits behind remote
@@ -171,6 +173,7 @@ pub fn get_status(skills_dir: &Path) -> Result<GitBackupStatus> {
             branch: None,
             has_changes: false,
             changed_skill_count: 0,
+            changed_extra_count: 0,
             ahead: 0,
             behind: 0,
             last_commit: None,
@@ -188,8 +191,9 @@ pub fn get_status(skills_dir: &Path) -> Result<GitBackupStatus> {
     let branch = run_git(skills_dir, &["rev-parse", "--abbrev-ref", "HEAD"]).ok();
 
     let porcelain = run_git(skills_dir, &["status", "--porcelain"]).unwrap_or_default();
-    let has_changes = !porcelain.is_empty() || super::extra_files::local_differs(skills_dir);
     let changed_skill_count = count_changed_top_dirs(&porcelain);
+    let changed_extra_count = super::extra_files::changed_count(skills_dir, &porcelain);
+    let has_changes = !porcelain.is_empty() || changed_extra_count > 0;
 
     let (ahead, behind) = get_ahead_behind(skills_dir).unwrap_or((0, 0));
 
@@ -229,6 +233,7 @@ pub fn get_status(skills_dir: &Path) -> Result<GitBackupStatus> {
         branch,
         has_changes,
         changed_skill_count,
+        changed_extra_count,
         ahead,
         behind,
         last_commit,

@@ -339,6 +339,8 @@ export function Backup() {
         // overwriting the remote when only remote updates exist.
         const localCount = Math.max(gitStatus?.ahead ?? 0, gitStatus?.has_changes ? 1 : 0);
         const remoteCount = gitStatus?.behind ?? 0;
+        const skillCount = gitStatus?.changed_skill_count ?? 0;
+        const extraCount = gitStatus?.changed_extra_count ?? 0;
         const remoteOnly = remoteCount > 0 && localCount === 0;
         const both = remoteCount > 0 && localCount > 0;
         return {
@@ -348,9 +350,13 @@ export function Backup() {
             ? t("backup.status.remoteOnlyDesc", { remote: remoteCount })
             : both
               ? t("backup.status.pendingBothDesc", { local: localCount, remote: remoteCount })
-              : (gitStatus?.changed_skill_count ?? 0) > 0
-                ? t("backup.status.pendingSkills", { count: gitStatus?.changed_skill_count })
-                : t("backup.status.pendingDesc", { local: localCount, remote: remoteCount }),
+              : skillCount > 0 && extraCount > 0
+                ? t("backup.status.pendingSkillsAndExtra", { count: skillCount, extra: extraCount })
+                : skillCount > 0
+                  ? t("backup.status.pendingSkills", { count: skillCount })
+                  : extraCount > 0
+                    ? t("backup.status.pendingExtra", { count: extraCount })
+                    : t("backup.status.pendingDesc", { local: localCount, remote: remoteCount }),
           className: "border-amber-500/40 bg-amber-500/10",
           iconClassName: "text-amber-600 dark:text-amber-400",
         };
