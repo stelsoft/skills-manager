@@ -10,7 +10,7 @@ usage() { cat <<U
 Usage: $0 [--install] [--no-sync] [--push]
   --install   run sudo dpkg -i on the built deb
   --no-sync   skip merging latest upstream tag into current branch
-  --push      push current branch to origin after sync
+  --push      also push current branch to origin after sync (fork main is always pushed)
   -h, --help  this
 Env: TARGET=<cargo target dir> (default $TARGET)
 U
@@ -20,6 +20,8 @@ for a in "$@"; do case $a in --install) INSTALL=1;; --no-sync) SYNC=0;; --push) 
 if [ $SYNC = 1 ]; then
   git diff --quiet && git diff --cached --quiet || { echo "working tree dirty, commit or stash first"; exit 1; }
   git fetch -q upstream --tags
+  git branch -q -f main upstream/main 2>/dev/null || true   # mirror upstream main locally (skipped if checked out)
+  git push -q origin upstream/main:main
   TAG=$(git tag --sort=-creatordate | head -1)
   echo "merging $TAG"
   git merge --no-edit "$TAG"
