@@ -146,7 +146,7 @@
     },
     "agents": {
       "title": "Agents",
-      "desc": "Back up config files from an agent's home folder together with your skills. Turn an agent on and pick files from its folder; they are restored to the same path on this device.",
+      "desc": "Turn an agent on and pick config files from its folder. They back up with your skills and restore to the same path.",
       "addFiles": "Add files…",
       "addFolder": "Add folder…",
       "other": "Other files",

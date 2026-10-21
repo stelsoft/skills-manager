@@ -124,7 +124,7 @@
     },
     "agents": {
       "title": "Agentes",
-      "desc": "Haz copia de los archivos de configuración de la carpeta de un agente junto con tus skills. Activa un agente y elige archivos de su carpeta; se restauran en la misma ruta de este dispositivo.",
+      "desc": "Activa un agente y elige archivos de configuración de su carpeta. Se respaldan con tus skills y se restauran en la misma ruta.",
       "addFiles": "Añadir archivos…",
       "addFolder": "Añadir carpeta…",
       "other": "Otros archivos",
