@@ -755,7 +755,7 @@ export function Backup() {
   };
 
   const agentDirs = tools
-    .filter((tool) => tool.enabled)
+    .filter((tool) => tool.installed && tool.enabled)
     .map((tool) => ({ tool, dir: tool.skills_dir.replace(/\\/g, "/").replace(/\/[^/]+\/?$/, "") }));
   const ownerDir = (path: string) =>
     agentDirs
@@ -1246,20 +1246,15 @@ export function Backup() {
               <h2 className="text-[14px] font-semibold text-secondary">{t("backup.agents.title")}</h2>
             </div>
             <p className="mb-3 text-[13px] leading-5 text-muted">{t("backup.agents.desc")}</p>
-            <div className="space-y-2">
+            <div className="grid grid-cols-1 gap-1.5 md:grid-cols-2 xl:grid-cols-3">
               {agentDirs.map(({ tool, dir }) => {
                 const paths = pathsUnder(dir);
                 const on = paths.length > 0;
                 return (
-                  <div key={tool.key} className="rounded-md border border-border-subtle px-3 py-2">
-                    <div className="flex items-center gap-2.5">
-                      <AgentIcon agentKey={tool.key} displayName={tool.display_name} className="h-5 w-5" />
-                      <div className="min-w-0 flex-1">
-                        <div className="truncate text-[13px] font-medium text-secondary">{tool.display_name}</div>
-                        <div className="truncate font-mono text-[12px] text-muted" title={dir}>
-                          {homePath && isUnder(dir, homePath) ? `~${dir.slice(homePath.length)}` : dir}
-                        </div>
-                      </div>
+                  <div key={tool.key} className="rounded-lg border border-border-subtle bg-surface px-3 py-2">
+                    <div className="flex items-center gap-2">
+                      <AgentIcon agentKey={tool.key} displayName={tool.display_name} className="h-5 w-5 shrink-0 rounded-md" />
+                      <div className="min-w-0 flex-1 truncate text-[13px] font-semibold text-primary">{tool.display_name}</div>
                       <ToggleSwitch
                         checked={on}
                         title={tool.display_name}
@@ -1270,8 +1265,11 @@ export function Backup() {
                         }
                       />
                     </div>
+                    <div className="mt-0.5 truncate font-mono text-[12px] text-muted" title={dir}>
+                      {homePath && isUnder(dir, homePath) ? `~${dir.slice(homePath.length)}` : dir}
+                    </div>
                     {on && (
-                      <div className="mt-2">
+                      <div className="mt-1.5">
                         {renderExtraList(paths, (path) => expandHome(path, homePath).slice(dir.length + 1) || path)}
                         {renderExtraButtons(dir)}
                       </div>
@@ -1279,15 +1277,15 @@ export function Backup() {
                   </div>
                 );
               })}
-              <div className="rounded-md border border-border-subtle px-3 py-2">
-                <div className="mb-2 text-[13px] font-medium text-secondary">{t("backup.agents.other")}</div>
-                {otherPaths.length === 0 ? (
-                  <div className="text-[12px] text-faint">{t("backup.agents.otherEmpty")}</div>
-                ) : (
-                  renderExtraList(otherPaths, (path) => path)
-                )}
-                {renderExtraButtons()}
-              </div>
+            </div>
+            <div className="mt-1.5 rounded-lg border border-border-subtle bg-surface px-3 py-2">
+              <div className="mb-1.5 text-[13px] font-semibold text-primary">{t("backup.agents.other")}</div>
+              {otherPaths.length === 0 ? (
+                <div className="text-[12px] text-faint">{t("backup.agents.otherEmpty")}</div>
+              ) : (
+                renderExtraList(otherPaths, (path) => path)
+              )}
+              {renderExtraButtons()}
             </div>
           </section>
 
