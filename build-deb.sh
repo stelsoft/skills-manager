@@ -5,23 +5,23 @@ cd "$(dirname "$0")"
 BRANCH=$(git branch --show-current)
 IMG=skills-manager-build
 TARGET=${TARGET:-$HOME/.cache/skills-manager-target}
-INSTALL=0 SYNC=1 PUSH=0
+INSTALL=0 SYNC=1 PUSH=1
 usage() { cat <<U
-Usage: $0 [--install] [--no-sync] [--push]
+Usage: $0 [--install] [--no-sync] [--no-push]
   --install   run sudo dpkg -i on the built deb
   --no-sync   skip merging latest upstream tag into current branch
-  --push      also push current branch to origin after sync (fork main is always pushed)
+  --no-push   skip pushing fork main + current branch to origin
   -h, --help  this
 Env: TARGET=<cargo target dir> (default $TARGET)
 U
 }
-for a in "$@"; do case $a in --install) INSTALL=1;; --no-sync) SYNC=0;; --push) PUSH=1;; -h|--help) usage; exit 0;; *) echo "unknown arg $a"; usage; exit 2;; esac; done
+for a in "$@"; do case $a in --install) INSTALL=1;; --no-sync) SYNC=0;; --no-push) PUSH=0;; -h|--help) usage; exit 0;; *) echo "unknown arg $a"; usage; exit 2;; esac; done
 
 if [ $SYNC = 1 ]; then
   git diff --quiet && git diff --cached --quiet || { echo "working tree dirty, commit or stash first"; exit 1; }
   git fetch -q upstream --tags
   git branch -q -f main upstream/main 2>/dev/null || true   # mirror upstream main locally (skipped if checked out)
-  git push -q origin upstream/main:main
+  [ $PUSH = 1 ] && git push -q origin upstream/main:main
   TAG=$(git tag --sort=-creatordate | head -1)
   echo "merging $TAG"
   git merge --no-edit "$TAG"
