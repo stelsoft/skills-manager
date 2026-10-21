@@ -122,6 +122,14 @@
       "title": "Conexión",
       "unknown": "Desconocido"
     },
+    "agents": {
+      "title": "Agentes",
+      "desc": "Haz copia de los archivos de configuración de la carpeta de un agente junto con tus skills. Activa un agente y elige archivos de su carpeta; se restauran en la misma ruta de este dispositivo.",
+      "addFiles": "Añadir archivos…",
+      "addFolder": "Añadir carpeta…",
+      "other": "Otros archivos",
+      "otherEmpty": "No hay otros archivos."
+    },
     "credentialsMigrated": "El token de acceso encontrado en tu URL de copia se movió al llavero del sistema. Ya no aparece en ningún archivo.",
     "device": {
       "label": "Este dispositivo",
@@ -193,14 +201,7 @@
       },
       "oversizedExcluded": "\"{{name}}\" tiene {{size}} — supera el límite de 100 MB, se conserva en esta máquina y no se respalda.",
       "extra": {
-        "title": "Archivos adicionales",
-        "desc": "Archivos y carpetas de este dispositivo que se respaldan junto con tus skills y se escriben de nuevo en la misma ruta aquí tras restaurar o sincronizar. La lista es propia de cada dispositivo.",
-        "placeholder": "~/.claude/CLAUDE.md",
-        "add": "Añadir",
-        "browseFile": "Archivo…",
-        "browseFolder": "Carpeta…",
         "remove": "Quitar {{path}}",
-        "empty": "No hay archivos adicionales.",
         "added": "Archivo adicional añadido",
         "removed": "Archivo adicional quitado"
       },

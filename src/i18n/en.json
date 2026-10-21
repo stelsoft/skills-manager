@@ -144,6 +144,14 @@
       "none": "Not connected",
       "unknown": "Unknown"
     },
+    "agents": {
+      "title": "Agents",
+      "desc": "Back up config files from an agent's home folder together with your skills. Turn an agent on and pick files from its folder; they are restored to the same path on this device.",
+      "addFiles": "Add files…",
+      "addFolder": "Add folder…",
+      "other": "Other files",
+      "otherEmpty": "No other files."
+    },
     "auto": {
       "title": "Automatic backup",
       "desc": "Back up automatically a few minutes after changes settle; a local save also runs when the app quits."
@@ -198,14 +206,7 @@
       "oversizedSkill": "\"{{name}}\" is {{size}} — already backed up; large skills may make backups slow.",
       "oversizedExcluded": "\"{{name}}\" is {{size}} — over the 100 MB limit, kept on this machine and not backed up.",
       "extra": {
-        "title": "Extra files",
-        "desc": "Files and folders from this device, backed up with your skills and written back to the same path here after a restore or sync. The list is per device.",
-        "placeholder": "~/.claude/CLAUDE.md",
-        "add": "Add",
-        "browseFile": "File…",
-        "browseFolder": "Folder…",
         "remove": "Remove {{path}}",
-        "empty": "No extra files.",
         "added": "Extra file added",
         "removed": "Extra file removed"
       }

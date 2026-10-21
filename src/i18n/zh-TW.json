@@ -144,6 +144,14 @@
       "none": "未連接",
       "unknown": "未知"
     },
+    "agents": {
+      "title": "代理",
+      "desc": "將代理主資料夾中的設定檔與技能一起備份。開啟某個代理並從其資料夾中選擇檔案；還原時會寫回此裝置上的相同路徑。",
+      "addFiles": "新增檔案…",
+      "addFolder": "新增資料夾…",
+      "other": "其他檔案",
+      "otherEmpty": "沒有其他檔案。"
+    },
     "auto": {
       "title": "自動備份",
       "desc": "變更停止幾分鐘後自動備份；結束應用程式時也會先在本機保存一次。"
@@ -198,14 +206,7 @@
       "oversizedSkill": "「{{name}}」大小為 {{size}}——已在備份中；超大技能可能拖慢備份。",
       "oversizedExcluded": "「{{name}}」大小為 {{size}}——超過 100 MB 上限，僅保留在本機，不參與備份。",
       "extra": {
-        "title": "額外檔案",
-        "desc": "本裝置上的檔案和資料夾，會隨技能一起備份，並在還原或同步後寫回本機的相同路徑。清單依裝置分別儲存。",
-        "placeholder": "~/.claude/CLAUDE.md",
-        "add": "新增",
-        "browseFile": "檔案…",
-        "browseFolder": "資料夾…",
         "remove": "移除 {{path}}",
-        "empty": "尚無額外檔案。",
         "added": "已新增額外檔案",
         "removed": "已移除額外檔案"
       }

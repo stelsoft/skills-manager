@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertTriangle,
+  Bot,
   CheckCircle2,
   Check,
   Cloud,
@@ -20,6 +21,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { listen } from "@tauri-apps/api/event";
+import { homeDir } from "@tauri-apps/api/path";
 import { open as dialogOpen } from "@tauri-apps/plugin-dialog";
 import { writeText as clipboardWriteText } from "@tauri-apps/plugin-clipboard-manager";
 import { openUrl } from "@tauri-apps/plugin-opener";
@@ -27,6 +29,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { cn } from "../utils";
 import { ToggleSwitch } from "../components/ToggleSwitch";
+import { AgentIcon } from "../components/AgentIcon";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { GitRecoveryDialog } from "../components/GitRecoveryDialog";
 import { GitSetupDialog } from "../components/GitSetupDialog";
@@ -86,9 +89,17 @@ function formatBytes(bytes: number) {
   return `${Math.max(1, Math.round(bytes / 1024))} KB`;
 }
 
+function expandHome(path: string, home: string) {
+  return (home && path.startsWith("~/") ? home + path.slice(1) : path).replace(/\\/g, "/");
+}
+
+function isUnder(path: string, dir: string) {
+  return path === dir || path.startsWith(`${dir}/`);
+}
+
 export function Backup() {
   const { t } = useTranslation();
-  const { managedSkills, refreshManagedSkills, refreshPresets } = useApp();
+  const { managedSkills, refreshManagedSkills, refreshPresets, tools } = useApp();
   const [gitStatus, setGitStatus] = useState<GitBackupStatus | null>(null);
   const [remoteInput, setRemoteInput] = useState("");
   const [remoteConfig, setRemoteConfig] = useState("");
@@ -114,7 +125,7 @@ export function Backup() {
   const [deviceNameDraft, setDeviceNameDraft] = useState("");
   const [deviceNameEditing, setDeviceNameEditing] = useState(false);
   const [extraPaths, setExtraPaths] = useState<string[]>([]);
-  const [extraDraft, setExtraDraft] = useState("");
+  const [homePath, setHomePath] = useState("");
   const [autoBackupEnabled, setAutoBackupEnabled] = useState(true);
   const [autoBackupSaving, setAutoBackupSaving] = useState(false);
   const [pendingConflicts, setPendingConflicts] = useState<api.PendingConflict[]>([]);
@@ -154,6 +165,10 @@ export function Backup() {
       || isSyncConflictError(error)
     );
   };
+
+  useEffect(() => {
+    homeDir().then((home) => setHomePath(home.replace(/\\/g, "/").replace(/\/+$/, ""))).catch(() => {});
+  }, []);
 
   const refreshGitStatus = useCallback(async (fetchRemote = false) => {
     // Runs after every sync/restore/clone, so a merge that changed the list shows up.
@@ -722,7 +737,6 @@ export function Backup() {
   const saveExtraPaths = async (paths: string[], added: boolean) => {
     try {
       setExtraPaths(await api.backupSetExtraPaths(paths));
-      if (added) setExtraDraft("");
       void refreshGitStatus();
       toast.success(t(added ? "backup.scope.extra.added" : "backup.scope.extra.removed"));
     } catch (error) {
@@ -735,10 +749,58 @@ export function Backup() {
     if (fresh.length) void saveExtraPaths([...extraPaths, ...fresh], true);
   };
 
-  const browseExtraPath = async (directory: boolean) => {
-    const selected = await dialogOpen({ multiple: true, directory });
+  const browseExtraPath = async (directory: boolean, defaultPath?: string) => {
+    const selected = await dialogOpen({ multiple: true, directory, defaultPath });
     if (selected) addExtraPaths(Array.isArray(selected) ? selected : [selected]);
   };
+
+  const agentDirs = tools
+    .filter((tool) => tool.enabled)
+    .map((tool) => ({ tool, dir: tool.skills_dir.replace(/\\/g, "/").replace(/\/[^/]+\/?$/, "") }));
+  const ownerDir = (path: string) =>
+    agentDirs
+      .map(({ dir }) => dir)
+      .filter((dir) => isUnder(expandHome(path, homePath), dir))
+      .sort((a, b) => b.length - a.length)[0];
+  const pathsUnder = (dir: string) => extraPaths.filter((p) => ownerDir(p) === dir);
+  const otherPaths = extraPaths.filter((p) => !ownerDir(p));
+
+  const renderExtraList = (paths: string[], label: (path: string) => string) => (
+    <div className="space-y-1">
+      {paths.map((path) => (
+        <div
+          key={path}
+          className="flex items-center justify-between gap-2 rounded-md border border-border-subtle bg-bg-secondary px-2 py-1"
+        >
+          <span className="truncate font-mono text-[12px] text-secondary" title={path}>{label(path)}</span>
+          <button
+            type="button"
+            onClick={() => void saveExtraPaths(extraPaths.filter((p) => p !== path), false)}
+            aria-label={t("backup.scope.extra.remove", { path })}
+            title={t("backup.scope.extra.remove", { path })}
+            className="shrink-0 rounded-md p-0.5 text-faint transition-colors hover:text-secondary"
+          >
+            <X className="h-3 w-3" />
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+
+  const renderExtraButtons = (defaultPath?: string) => (
+    <div className="mt-1.5 flex items-center gap-1.5">
+      {[false, true].map((directory) => (
+        <button
+          key={String(directory)}
+          type="button"
+          onClick={() => void browseExtraPath(directory, defaultPath)}
+          className="rounded-lg border border-border-subtle px-2 py-1 text-[12px] font-medium text-secondary transition-colors hover:bg-surface-hover"
+        >
+          {t(directory ? "backup.agents.addFolder" : "backup.agents.addFiles")}
+        </button>
+      ))}
+    </div>
+  );
 
   const handleDisconnect = async () => {
     setLoading("disconnect");
@@ -1179,6 +1241,57 @@ export function Backup() {
           </section>
 
           <section className="app-panel p-4">
+            <div className="mb-3 flex items-center gap-2">
+              <Bot className="h-4 w-4 text-muted" />
+              <h2 className="text-[14px] font-semibold text-secondary">{t("backup.agents.title")}</h2>
+            </div>
+            <p className="mb-3 text-[13px] leading-5 text-muted">{t("backup.agents.desc")}</p>
+            <div className="space-y-2">
+              {agentDirs.map(({ tool, dir }) => {
+                const paths = pathsUnder(dir);
+                const on = paths.length > 0;
+                return (
+                  <div key={tool.key} className="rounded-md border border-border-subtle px-3 py-2">
+                    <div className="flex items-center gap-2.5">
+                      <AgentIcon agentKey={tool.key} displayName={tool.display_name} className="h-5 w-5" />
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-[13px] font-medium text-secondary">{tool.display_name}</div>
+                        <div className="truncate font-mono text-[12px] text-muted" title={dir}>
+                          {homePath && isUnder(dir, homePath) ? `~${dir.slice(homePath.length)}` : dir}
+                        </div>
+                      </div>
+                      <ToggleSwitch
+                        checked={on}
+                        title={tool.display_name}
+                        onChange={() =>
+                          on
+                            ? void saveExtraPaths(extraPaths.filter((p) => !paths.includes(p)), false)
+                            : void browseExtraPath(false, dir)
+                        }
+                      />
+                    </div>
+                    {on && (
+                      <div className="mt-2">
+                        {renderExtraList(paths, (path) => expandHome(path, homePath).slice(dir.length + 1) || path)}
+                        {renderExtraButtons(dir)}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+              <div className="rounded-md border border-border-subtle px-3 py-2">
+                <div className="mb-2 text-[13px] font-medium text-secondary">{t("backup.agents.other")}</div>
+                {otherPaths.length === 0 ? (
+                  <div className="text-[12px] text-faint">{t("backup.agents.otherEmpty")}</div>
+                ) : (
+                  renderExtraList(otherPaths, (path) => path)
+                )}
+                {renderExtraButtons()}
+              </div>
+            </div>
+          </section>
+
+          <section className="app-panel p-4">
             <div className="mb-3 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <History className="h-4 w-4 text-muted" />
@@ -1254,72 +1367,6 @@ export function Backup() {
                   <span>{t(`backup.scope.excluded.${key}`)}</span>
                 </div>
               ))}
-            </div>
-            <div className="mt-3 border-t border-border-subtle pt-3">
-              <div className="text-[13px] font-medium text-secondary">{t("backup.scope.extra.title")}</div>
-              <p className="mt-1 text-[12px] leading-5 text-muted">{t("backup.scope.extra.desc")}</p>
-              <div className="mt-2 space-y-1">
-                {extraPaths.length === 0 ? (
-                  <div className="text-[12px] text-faint">{t("backup.scope.extra.empty")}</div>
-                ) : (
-                  extraPaths.map((path) => (
-                    <div
-                      key={path}
-                      className="flex items-center justify-between gap-2 rounded-md border border-border-subtle bg-bg-secondary px-2 py-1"
-                    >
-                      <span className="truncate font-mono text-[12px] text-secondary" title={path}>{path}</span>
-                      <button
-                        type="button"
-                        onClick={() => void saveExtraPaths(extraPaths.filter((p) => p !== path), false)}
-                        aria-label={t("backup.scope.extra.remove", { path })}
-                        title={t("backup.scope.extra.remove", { path })}
-                        className="shrink-0 rounded-md p-0.5 text-faint transition-colors hover:text-secondary"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </div>
-                  ))
-                )}
-              </div>
-              <div className="mt-2 flex items-center gap-1.5">
-                <input
-                  type="text"
-                  value={extraDraft}
-                  onChange={(event) => setExtraDraft(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter") addExtraPaths([extraDraft]);
-                  }}
-                  placeholder={t("backup.scope.extra.placeholder")}
-                  className="h-7 min-w-0 flex-1 rounded-lg border border-border-subtle bg-background px-2 font-mono text-[12px] text-secondary outline-none transition-colors focus:border-border"
-                  autoCapitalize="none"
-                  autoCorrect="off"
-                  spellCheck={false}
-                />
-                <button
-                  type="button"
-                  onClick={() => addExtraPaths([extraDraft])}
-                  disabled={!extraDraft.trim()}
-                  className="h-7 shrink-0 rounded-lg border border-border bg-surface-hover px-2 text-[12px] font-medium text-tertiary transition-colors hover:bg-surface-active disabled:opacity-50"
-                >
-                  {t("backup.scope.extra.add")}
-                </button>
-              </div>
-              <div className="mt-1.5 flex items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => void browseExtraPath(false)}
-                  className="rounded-lg border border-border-subtle px-2 py-1 text-[12px] font-medium text-secondary transition-colors hover:bg-surface-hover"
-                >
-                  {t("backup.scope.extra.browseFile")}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void browseExtraPath(true)}
-                  className="rounded-lg border border-border-subtle px-2 py-1 text-[12px] font-medium text-secondary transition-colors hover:bg-surface-hover"
-                >
-                  {t("backup.scope.extra.browseFolder")}
-                </button>
-              </div>
             </div>
             {sizeReport && (sizeReport.oversized.length > 0 || sizeReport.total_bytes > sizeReport.repo_warn_bytes) ? (
               <div className="mt-3 space-y-1 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[12px] leading-5 text-amber-700 dark:text-amber-300">
