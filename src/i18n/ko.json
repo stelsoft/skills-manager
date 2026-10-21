@@ -150,7 +150,8 @@
       "addFiles": "파일 추가…",
       "addFolder": "폴더 추가…",
       "other": "기타 파일",
-      "otherEmpty": "기타 파일이 없습니다."
+      "otherEmpty": "기타 파일이 없습니다.",
+      "fileCount": "파일 {{count}}개"
     },
     "auto": {
       "title": "자동 백업",

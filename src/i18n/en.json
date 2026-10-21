@@ -150,7 +150,8 @@
       "addFiles": "Add files…",
       "addFolder": "Add folder…",
       "other": "Other files",
-      "otherEmpty": "No other files."
+      "otherEmpty": "No other files.",
+      "fileCount": "{{count}} files"
     },
     "auto": {
       "title": "Automatic backup",

@@ -150,7 +150,8 @@
       "addFiles": "新增檔案…",
       "addFolder": "新增資料夾…",
       "other": "其他檔案",
-      "otherEmpty": "沒有其他檔案。"
+      "otherEmpty": "沒有其他檔案。",
+      "fileCount": "{{count}} 個檔案"
     },
     "auto": {
       "title": "自動備份",

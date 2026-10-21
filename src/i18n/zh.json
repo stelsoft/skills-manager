@@ -150,7 +150,8 @@
       "addFiles": "添加文件…",
       "addFolder": "添加文件夹…",
       "other": "其他文件",
-      "otherEmpty": "没有其他文件。"
+      "otherEmpty": "没有其他文件。",
+      "fileCount": "{{count}} 个文件"
     },
     "auto": {
       "title": "自动备份",

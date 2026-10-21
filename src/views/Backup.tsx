@@ -4,6 +4,7 @@ import {
   Bot,
   CheckCircle2,
   Check,
+  ChevronRight,
   Cloud,
   Copy,
   ExternalLink,
@@ -765,27 +766,39 @@ export function Backup() {
   const pathsUnder = (dir: string) => extraPaths.filter((p) => ownerDir(p) === dir);
   const otherPaths = extraPaths.filter((p) => !ownerDir(p));
 
-  const renderExtraList = (paths: string[], label: (path: string) => string) => (
-    <div className="space-y-1">
-      {paths.map((path) => (
-        <div
-          key={path}
-          className="flex items-center justify-between gap-2 rounded-md border border-border-subtle bg-bg-secondary px-2 py-1"
-        >
-          <span className="truncate font-mono text-[12px] text-secondary" title={path}>{label(path)}</span>
-          <button
-            type="button"
-            onClick={() => void saveExtraPaths(extraPaths.filter((p) => p !== path), false)}
-            aria-label={t("backup.scope.extra.remove", { path })}
-            title={t("backup.scope.extra.remove", { path })}
-            className="shrink-0 rounded-md p-0.5 text-faint transition-colors hover:text-secondary"
+  const renderExtraList = (paths: string[], label: (path: string) => string) => {
+    const list = (
+      <div className="space-y-1">
+        {paths.map((path) => (
+          <div
+            key={path}
+            className="flex items-center justify-between gap-2 rounded-md border border-border-subtle bg-bg-secondary px-2 py-1"
           >
-            <X className="h-3 w-3" />
-          </button>
-        </div>
-      ))}
-    </div>
-  );
+            <span className="truncate font-mono text-[12px] text-secondary" title={path}>{label(path)}</span>
+            <button
+              type="button"
+              onClick={() => void saveExtraPaths(extraPaths.filter((p) => p !== path), false)}
+              aria-label={t("backup.scope.extra.remove", { path })}
+              title={t("backup.scope.extra.remove", { path })}
+              className="shrink-0 rounded-md p-0.5 text-faint transition-colors hover:text-secondary"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </div>
+        ))}
+      </div>
+    );
+    if (paths.length <= 1) return list;
+    return (
+      <details className="group">
+        <summary className="flex cursor-pointer list-none items-center gap-1 text-[12px] text-muted transition-colors hover:text-secondary [&::-webkit-details-marker]:hidden">
+          <ChevronRight className="h-3 w-3 transition-transform group-open:rotate-90" />
+          {t("backup.agents.fileCount", { count: paths.length })}
+        </summary>
+        <div className="mt-1">{list}</div>
+      </details>
+    );
+  };
 
   const renderExtraButtons = (defaultPath?: string) => (
     <div className="mt-1.5 flex items-center gap-1.5">

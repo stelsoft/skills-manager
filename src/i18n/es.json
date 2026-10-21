@@ -128,7 +128,8 @@
       "addFiles": "Añadir archivos…",
       "addFolder": "Añadir carpeta…",
       "other": "Otros archivos",
-      "otherEmpty": "No hay otros archivos."
+      "otherEmpty": "No hay otros archivos.",
+      "fileCount": "{{count}} archivos"
     },
     "credentialsMigrated": "El token de acceso encontrado en tu URL de copia se movió al llavero del sistema. Ya no aparece en ningún archivo.",
     "device": {
